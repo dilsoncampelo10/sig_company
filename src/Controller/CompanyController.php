@@ -14,10 +14,22 @@ class CompanyController extends AbstractController
     #[Route('/companies', name: 'companies', methods: ['GET'])]
     public function index(CompanyRepository $companyRepository): JsonResponse
     {
-        return $this->json([
-            'data' => $companyRepository->findAll(),
+        return $this->json(
+             $companyRepository->findAll(),
+        );
+    }
 
-        ]);
+    #[Route('/companies/{company}', name: 'companies_show', methods: ['GET'])]
+    public function show(int $company, CompanyRepository $companyRepository): JsonResponse
+    {
+        $company = $companyRepository->find($company);
+
+        if(!$company) throw $this->createNotFoundException();
+
+        return $this->json(
+           $company
+
+        );
     }
 
     #[Route('/companies', name: 'companies_store', methods: ['POST'])]
