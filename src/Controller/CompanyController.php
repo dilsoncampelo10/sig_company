@@ -36,7 +36,7 @@ class CompanyController extends AbstractController
     #[Route('/companies', name: 'companies_store', methods: ['POST'])]
     public function store(Request $request, CompanyRepository $companyRepository): JsonResponse
     {
-        $data = $request->request->all();
+        $data = $request->toArray();
         $company = new Company();
         $company->setName($data['name']);
         $company->setCnpj($data['cnpj']);
@@ -55,7 +55,7 @@ class CompanyController extends AbstractController
     #[Route('/companies/{company}', name: 'companies_update', methods: ['PUT'])]
     public function update(int $company, Request $request, ManagerRegistry $doctrine, CompanyRepository $companyRepository): JsonResponse
     {
-        $data = $request->request->all();
+        $data = $request->toArray();
         $company = $companyRepository->find($company);
 
 
@@ -74,5 +74,22 @@ class CompanyController extends AbstractController
             'message' => 'Company Updated successfuly',
             'data' => $company,
         ], 201);
+    }
+
+
+    #[Route('/companies/{company}', name: 'companies_delete', methods: ['DELETE'])]
+    public function delete(int $company, CompanyRepository $companyRepository): JsonResponse
+    {
+        $company = $companyRepository->find($company);
+
+        if (!$company) throw $this->createNotFoundException();
+
+        $companyRepository->remove($company, true);
+
+        return $this->json(
+            ['data' => $company->getId()],
+            204
+
+        );
     }
 }

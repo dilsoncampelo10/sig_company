@@ -24,6 +24,16 @@ class CompanyRepository extends ServiceEntityRepository
     public function add(Company $entity, bool $flush = false)
     {
         $this->getEntityManager()->persist($entity);
+        
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(Company $entity, bool $flush = false)
+    {
+        $this->getEntityManager()->remove($entity);
+
         if ($flush) {
             $this->getEntityManager()->flush();
         }
