@@ -12,11 +12,11 @@ use Symfony\Component\Routing\Attribute\Route;
 class CompanyController extends AbstractController
 {
     #[Route('/companies', name: 'companies', methods: ['GET'])]
-    public function index(): JsonResponse
+    public function index(CompanyRepository $companyRepository): JsonResponse
     {
         return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/CompanyController.php',
+            'data' => $companyRepository->findAll(),
+
         ]);
     }
 
@@ -35,7 +35,7 @@ class CompanyController extends AbstractController
 
         return $this->json([
             'message' => 'Company Created successfuly',
-            'path' => 'src/Controller/CompanyController.php',
+            'data' => $company,
         ], 201);
     }
 }
