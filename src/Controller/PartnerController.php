@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Partner;
 use App\Repository\PartnerRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,6 +53,27 @@ class PartnerController extends AbstractController
 
         return $this->json([
             'message' => 'Partner Created successfuly',
+            'data' => $partner,
+        ], 201);
+    }
+
+    #[Route('/partners/{partner}', name: 'partners_update', methods: ['PUT'])]
+    public function update(int $partner, Request $request, ManagerRegistry $doctrine, PartnerRepository $companyRepository): JsonResponse
+    {
+        $data = $request->toArray();
+        $partner = $companyRepository->find($partner);
+
+        if (!$partner) throw $this->createNotFoundException();
+
+        $partner->setName($data['name']);
+        $partner->setStatus(boolval($data['status']));
+
+        $partner->setUpdatedAt(new \DateTimeImmutable('now', new \DateTimeZone('America/Sao_Paulo')));
+
+        $doctrine->getManager()->flush();
+
+        return $this->json([
+            'message' => 'Company Updated successfuly',
             'data' => $partner,
         ], 201);
     }
