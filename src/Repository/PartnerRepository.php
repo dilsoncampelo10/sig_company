@@ -30,6 +30,16 @@ class PartnerRepository extends ServiceEntityRepository
         }
     }
 
+    public function remove(Partner $entity, bool $flush = false)
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+
     //    /**
     //     * @return Partner[] Returns an array of Partner objects
     //     */

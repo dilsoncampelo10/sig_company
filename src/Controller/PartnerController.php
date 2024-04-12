@@ -55,4 +55,22 @@ class PartnerController extends AbstractController
             'data' => $partner,
         ], 201);
     }
+
+
+
+    #[Route('/partners/{partner}', name: 'partners_delete', methods: ['DELETE'])]
+    public function delete(int $partner, PartnerRepository $partnerRepository): JsonResponse
+    {
+        $partner = $partnerRepository->find($partner);
+
+        if (!$partner) throw $this->createNotFoundException();
+
+        $partnerRepository->remove($partner, true);
+
+        return $this->json(
+            ['data' => $partner->getId()],
+            204
+
+        );
+    }
 }
