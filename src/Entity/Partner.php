@@ -22,6 +22,9 @@ class Partner implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 200)]
     private ?string $email = null;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    private array $roles = ['ROLE_USER'];
+
     #[ORM\Column(length: 255)]
     private ?string $password = null;
 
@@ -117,11 +120,20 @@ class Partner implements UserInterface, PasswordAuthenticatedUserInterface
         // Neste caso, como a senha é armazenada no banco de dados, não é necessário fazer nada aqui
     }
 
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
     public function getRoles(): array
     {
-        // Implementação do método getRoles, retorna os papéis do usuário
-        // Aqui você pode definir os papéis do usuário, por exemplo:
-        return ['ROLE_PARTNER'];
+        $roles = $this->roles;
+
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
     }
 
     public function getUserIdentifier(): string

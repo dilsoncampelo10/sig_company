@@ -16,8 +16,11 @@ class PartnerController extends AbstractController
     #[Route('/partners', name: 'partners', methods: ['GET'])]
     public function index(PartnerRepository $partnerRepository): JsonResponse
     {
+        $partners = $partnerRepository->findAll();
+  
         return $this->json(
-            $partnerRepository->findAll(),
+            $partners,
+            200
         );
     }
 
