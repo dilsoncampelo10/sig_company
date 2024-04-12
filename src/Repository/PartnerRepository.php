@@ -21,6 +21,15 @@ class PartnerRepository extends ServiceEntityRepository
         parent::__construct($registry, Partner::class);
     }
 
+    public function add(Partner $entity, bool $flush = false)
+    {
+        $this->getEntityManager()->persist($entity);
+        
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
     //    /**
     //     * @return Partner[] Returns an array of Partner objects
     //     */

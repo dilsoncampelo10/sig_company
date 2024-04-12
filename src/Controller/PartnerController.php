@@ -7,11 +7,12 @@ use App\Repository\PartnerRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 class PartnerController extends AbstractController
 {
-    #[Route('/partners', name: 'partners')]
+    #[Route('/partners', name: 'partners', methods: ['GET'])]
     public function index(PartnerRepository $partnerRepository): JsonResponse
     {
         return $this->json(
@@ -32,14 +33,19 @@ class PartnerController extends AbstractController
         );
     }
 
-    #[Route('/companies', name: 'companies_store', methods: ['POST'])]
-    public function store(Request $request, PartnerRepository $partnerRepository): JsonResponse
+    #[Route('/partners', name: 'partners_store', methods: ['POST'])]
+    public function store(Request $request, UserPasswordHasherInterface $passwordHasher, PartnerRepository $partnerRepository): JsonResponse
     {
         $data = $request->toArray();
         $partner = new Partner();
         $partner->setName($data['name']);
         $partner->setEmail($data['email']);
-        $partner->setPassword($data['password']);
+        $partner->setPassword(
+            $passwordHasher->hashPassword(
+                $partner,
+                $data['password']
+            )
+        );
         $partner->setCreatedAt(new \DateTimeImmutable('now', new \DateTimeZone('America/Sao_Paulo')));
 
         $partnerRepository->add($partner, true);

@@ -4,10 +4,12 @@ namespace App\Entity;
 
 use App\Repository\PartnerRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: PartnerRepository::class)]
-#[ORM\Table(name:"partners")]
-class Partner
+#[ORM\Table(name: "partners")]
+class Partner implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -107,5 +109,23 @@ class Partner
         $this->updated_at = $updated_at;
 
         return $this;
+    }
+
+    public function eraseCredentials()
+    {
+        // Implementação do método eraseCredentials, remove dados sensíveis do usuário
+        // Neste caso, como a senha é armazenada no banco de dados, não é necessário fazer nada aqui
+    }
+
+    public function getRoles(): array
+    {
+        // Implementação do método getRoles, retorna os papéis do usuário
+        // Aqui você pode definir os papéis do usuário, por exemplo:
+        return ['ROLE_PARTNER'];
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
     }
 }
