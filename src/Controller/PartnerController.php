@@ -63,7 +63,7 @@ class PartnerController extends AbstractController
     }
 
     #[Route('/partners/{partner}', name: 'partners_update', methods: ['PUT'])]
-    public function update(int $partner, Request $request, ManagerRegistry $doctrine, PartnerRepository $companyRepository): JsonResponse
+    public function update(int $partner, Request $request): JsonResponse
     {
         $data = $request->toArray();
 
@@ -81,7 +81,7 @@ class PartnerController extends AbstractController
     }
 
     #[Route('/partners/{partner}', name: 'partners_delete', methods: ['DELETE'])]
-    public function delete(int $partner, PartnerRepository $partnerRepository): JsonResponse
+    public function delete(int $partner): JsonResponse
     {
         $partner = $this->partnerService->delete($partner);
 
