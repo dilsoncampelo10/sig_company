@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CompanyRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CompanyRepository::class)]
@@ -31,6 +33,17 @@ class Company
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updated_at = null;
+
+    /**
+     * @var Collection<int, Partner>
+     */
+    #[ORM\ManyToMany(targetEntity: Partner::class, inversedBy: 'companies')]
+    private Collection $partner_id;
+
+    public function __construct()
+    {
+        $this->partner_id = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -105,6 +118,30 @@ class Company
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Partner>
+     */
+    public function getPartnerId(): Collection
+    {
+        return $this->partner_id;
+    }
+
+    public function addPartnerId(Partner $partnerId): static
+    {
+        if (!$this->partner_id->contains($partnerId)) {
+            $this->partner_id->add($partnerId);
+        }
+
+        return $this;
+    }
+
+    public function removePartnerId(Partner $partnerId): static
+    {
+        $this->partner_id->removeElement($partnerId);
 
         return $this;
     }

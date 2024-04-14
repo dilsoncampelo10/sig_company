@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PartnerRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -36,6 +38,18 @@ class Partner implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updated_at = null;
+
+    /**
+     * @var Collection<int, Company>
+     */
+    #[ORM\ManyToMany(targetEntity: Company::class, mappedBy: 'partner_id')]
+    private Collection $companies;
+
+    public function __construct()
+    {
+        $this->companies = new ArrayCollection();
+    }
+
 
     public function getId(): ?int
     {
@@ -139,5 +153,32 @@ class Partner implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return $this->email;
+    }
+
+    /**
+     * @return Collection<int, Company>
+     */
+    public function getCompanies(): Collection
+    {
+        return $this->companies;
+    }
+
+    public function addCompany(Company $company): static
+    {
+        if (!$this->companies->contains($company)) {
+            $this->companies->add($company);
+            $company->addPartnerId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompany(Company $company): static
+    {
+        if ($this->companies->removeElement($company)) {
+            $company->removePartnerId($this);
+        }
+
+        return $this;
     }
 }
