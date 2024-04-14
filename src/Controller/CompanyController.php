@@ -2,14 +2,12 @@
 
 namespace App\Controller;
 
-use App\Entity\Company;
-use App\Repository\CompanyRepository;
 use App\Service\CompanyService;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class CompanyController extends AbstractController
 {
@@ -21,7 +19,10 @@ class CompanyController extends AbstractController
     {
         $companies = $this->companyService->findAll();
         return $this->json(
-           $companies
+            $companies,
+            200,
+            [],
+            [ObjectNormalizer::IGNORED_ATTRIBUTES => ['companies', 'password']]
         );
     }
 
@@ -31,7 +32,10 @@ class CompanyController extends AbstractController
         $company = $this->companyService->findById($company);
 
         return $this->json(
-            $company
+            $company,
+            200,
+            [],
+            [ObjectNormalizer::IGNORED_ATTRIBUTES => ['companies', 'password']]
         );
     }
 
@@ -42,10 +46,15 @@ class CompanyController extends AbstractController
 
         $company = $this->companyService->create($data);
 
-        return $this->json([
-            'message' => 'Company Created successfuly',
-            'data' => $company,
-        ], 201);
+        return $this->json(
+            [
+                'message' => 'Company Created successfuly',
+                'data' => $company,
+            ],
+            201,
+            [],
+            [ObjectNormalizer::IGNORED_ATTRIBUTES => ['companies', 'password']]
+        );
     }
 
     #[Route('/companies/{company}', name: 'companies_update', methods: ['PUT'])]
@@ -55,10 +64,15 @@ class CompanyController extends AbstractController
 
         $company = $this->companyService->update($company, $data);
 
-        return $this->json([
-            'message' => 'Company Updated successfuly',
-            'data' => $company,
-        ], 201);
+        return $this->json(
+            [
+                'message' => 'Company Updated successfuly',
+                'data' => $company,
+            ],
+            201,
+            [],
+            [ObjectNormalizer::IGNORED_ATTRIBUTES => ['companies', 'password']]
+        );
     }
 
 

@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CompanyService
 {
-    function __construct(private CompanyRepository $companyRepository, private ManagerRegistry $doctrine)
+    function __construct(private CompanyRepository $companyRepository, private ManagerRegistry $doctrine, private PartnerService $partnerService)
     {
     }
     public function findAll()
@@ -29,13 +29,15 @@ class CompanyService
 
     public function create(array $data)
     {
-
         $company = new Company();
+
+        $partner = $this->partnerService->findById($data['partner_id']);
 
         $company->setName($data['name']);
         $company->setCnpj($data['cnpj']);
         $company->setSite($data['site']);
         $company->setPhone($data['phone']);
+        $company->addPartnerId($partner);
         $company->setCreatedAt(new \DateTimeImmutable('now', new \DateTimeZone('America/Sao_Paulo')));
 
         $this->companyRepository->add($company, true);
