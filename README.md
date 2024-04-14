@@ -34,15 +34,15 @@
 
 ## Partner:
 
-### GET - /api/companies 
+### GET - /api/partners
 
 - Resposta Com todas os sócios
 
-### GET - /api/companies/{id}
+### GET - /api/partners/{id}
 
 - Resposta Com o sócio do id enviado
 
-### POST - /api/companies 
+### POST - /api/partners
 
 - Envia no corpo da requisição um json com dados do sócio
 
@@ -52,11 +52,11 @@
 	"password": "123456"
 }
 
-### PUT - /api/companies/{id}
+### PUT - /api/partners/{id}
 
 - Envia no corpo da requisição um json com dados do sócio e o id por parâmetro da url
 
-### DELETE - /api/companies/{id}
+### DELETE - /api/partners/{id}
 
 - Envia o id por parâmetro para exclusão
 
