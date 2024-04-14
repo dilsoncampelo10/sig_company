@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Partner;
 use App\Repository\PartnerRepository;
+use App\Service\PartnerService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,11 +14,15 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class PartnerController extends AbstractController
 {
+
+    function __construct(private PartnerService $partnerService)
+    {
+    }
     #[Route('/partners', name: 'partners', methods: ['GET'])]
     public function index(PartnerRepository $partnerRepository): JsonResponse
     {
-        $partners = $partnerRepository->findAll();
-  
+        $partners = $this->partnerService->findAll();
+
         return $this->json(
             $partners,
             200
@@ -25,11 +30,9 @@ class PartnerController extends AbstractController
     }
 
     #[Route('/partners/{partner}', name: 'partners_show', methods: ['GET'])]
-    public function show(int $partner, PartnerRepository $partnerRepository): JsonResponse
+    public function show(int $partner): JsonResponse
     {
-        $partner = $partnerRepository->find($partner);
-
-        if (!$partner) throw $this->createNotFoundException();
+        $partner = $this->partnerService->findById($partner);
 
         return $this->json(
             $partner
@@ -38,21 +41,11 @@ class PartnerController extends AbstractController
     }
 
     #[Route('/partners', name: 'partners_store', methods: ['POST'])]
-    public function store(Request $request, UserPasswordHasherInterface $passwordHasher, PartnerRepository $partnerRepository): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $data = $request->toArray();
-        $partner = new Partner();
-        $partner->setName($data['name']);
-        $partner->setEmail($data['email']);
-        $partner->setPassword(
-            $passwordHasher->hashPassword(
-                $partner,
-                $data['password']
-            )
-        );
-        $partner->setCreatedAt(new \DateTimeImmutable('now', new \DateTimeZone('America/Sao_Paulo')));
 
-        $partnerRepository->add($partner, true);
+        $partner = $this->partnerService->create($data);
 
         return $this->json([
             'message' => 'Partner Created successfuly',
@@ -64,16 +57,8 @@ class PartnerController extends AbstractController
     public function update(int $partner, Request $request, ManagerRegistry $doctrine, PartnerRepository $companyRepository): JsonResponse
     {
         $data = $request->toArray();
-        $partner = $companyRepository->find($partner);
 
-        if (!$partner) throw $this->createNotFoundException();
-
-        $partner->setName($data['name']);
-        $partner->setStatus(boolval($data['status']));
-
-        $partner->setUpdatedAt(new \DateTimeImmutable('now', new \DateTimeZone('America/Sao_Paulo')));
-
-        $doctrine->getManager()->flush();
+        $partner = $this->partnerService->update($partner, $data);
 
         return $this->json([
             'message' => 'Company Updated successfuly',
@@ -81,16 +66,10 @@ class PartnerController extends AbstractController
         ], 201);
     }
 
-
-
     #[Route('/partners/{partner}', name: 'partners_delete', methods: ['DELETE'])]
     public function delete(int $partner, PartnerRepository $partnerRepository): JsonResponse
     {
-        $partner = $partnerRepository->find($partner);
-
-        if (!$partner) throw $this->createNotFoundException();
-
-        $partnerRepository->remove($partner, true);
+        $partner = $this->partnerService->delete($partner);
 
         return $this->json(
             ['data' => $partner->getId()],

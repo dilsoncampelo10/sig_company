@@ -19,8 +19,9 @@ class CompanyController extends AbstractController
     #[Route('/companies', name: 'companies', methods: ['GET'])]
     public function index(): JsonResponse
     {
+        $companies = $this->companyService->findAll();
         return $this->json(
-            $this->companyService->findAll(),
+           $companies
         );
     }
 
