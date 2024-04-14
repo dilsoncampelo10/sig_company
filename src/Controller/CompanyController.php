@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Company;
 use App\Repository\CompanyRepository;
+use App\Service\CompanyService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -12,39 +13,33 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class CompanyController extends AbstractController
 {
+    function __construct(private CompanyService $companyService)
+    {
+    }
     #[Route('/companies', name: 'companies', methods: ['GET'])]
-    public function index(CompanyRepository $companyRepository): JsonResponse
+    public function index(): JsonResponse
     {
         return $this->json(
-            $companyRepository->findAll(),
+            $this->companyService->findAll(),
         );
     }
 
     #[Route('/companies/{company}', name: 'companies_show', methods: ['GET'])]
-    public function show(int $company, CompanyRepository $companyRepository): JsonResponse
+    public function show(int $company): JsonResponse
     {
-        $company = $companyRepository->find($company);
-
-        if (!$company) throw $this->createNotFoundException();
+        $company = $this->companyService->findById($company);
 
         return $this->json(
             $company
-
         );
     }
 
     #[Route('/companies', name: 'companies_store', methods: ['POST'])]
-    public function store(Request $request, CompanyRepository $companyRepository): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $data = $request->toArray();
-        $company = new Company();
-        $company->setName($data['name']);
-        $company->setCnpj($data['cnpj']);
-        $company->setSite($data['site']);
-        $company->setPhone($data['phone']);
-        $company->setCreatedAt(new \DateTimeImmutable('now', new \DateTimeZone('America/Sao_Paulo')));
 
-        $companyRepository->add($company, true);
+        $company = $this->companyService->create($data);
 
         return $this->json([
             'message' => 'Company Created successfuly',
@@ -53,22 +48,11 @@ class CompanyController extends AbstractController
     }
 
     #[Route('/companies/{company}', name: 'companies_update', methods: ['PUT'])]
-    public function update(int $company, Request $request, ManagerRegistry $doctrine, CompanyRepository $companyRepository): JsonResponse
+    public function update(int $company, Request $request): JsonResponse
     {
         $data = $request->toArray();
-        $company = $companyRepository->find($company);
 
-
-        if (!$company) throw $this->createNotFoundException();
-
-        $company->setName($data['name']);
-        $company->setCnpj($data['cnpj']);
-        $company->setSite($data['site']);
-        $company->setPhone($data['phone']);
-
-        $company->setUpdatedAt(new \DateTimeImmutable('now', new \DateTimeZone('America/Sao_Paulo')));
-
-        $doctrine->getManager()->flush();
+        $company = $this->companyService->update($company, $data);
 
         return $this->json([
             'message' => 'Company Updated successfuly',
@@ -78,13 +62,9 @@ class CompanyController extends AbstractController
 
 
     #[Route('/companies/{company}', name: 'companies_delete', methods: ['DELETE'])]
-    public function delete(int $company, CompanyRepository $companyRepository): JsonResponse
+    public function delete(int $company): JsonResponse
     {
-        $company = $companyRepository->find($company);
-
-        if (!$company) throw $this->createNotFoundException();
-
-        $companyRepository->remove($company, true);
+        $company = $this->companyService->delete($company);
 
         return $this->json(
             ['data' => $company->getId()],
