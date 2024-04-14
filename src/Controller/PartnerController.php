@@ -2,15 +2,14 @@
 
 namespace App\Controller;
 
-use App\Entity\Partner;
 use App\Repository\PartnerRepository;
 use App\Service\PartnerService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class PartnerController extends AbstractController
 {
@@ -19,13 +18,15 @@ class PartnerController extends AbstractController
     {
     }
     #[Route('/partners', name: 'partners', methods: ['GET'])]
-    public function index(PartnerRepository $partnerRepository): JsonResponse
+    public function index(): JsonResponse
     {
         $partners = $this->partnerService->findAll();
 
         return $this->json(
             $partners,
-            200
+            200,
+            [],
+            [ObjectNormalizer::IGNORED_ATTRIBUTES => ['partnerId', 'password']]
         );
     }
 
@@ -35,7 +36,10 @@ class PartnerController extends AbstractController
         $partner = $this->partnerService->findById($partner);
 
         return $this->json(
-            $partner
+            $partner,
+            200,
+            [],
+            [ObjectNormalizer::IGNORED_ATTRIBUTES => ['partnerId', 'password']]
 
         );
     }
@@ -47,10 +51,15 @@ class PartnerController extends AbstractController
 
         $partner = $this->partnerService->create($data);
 
-        return $this->json([
-            'message' => 'Partner Created successfuly',
-            'data' => $partner,
-        ], 201);
+        return $this->json(
+            [
+                'message' => 'Partner Created successfuly',
+                'data' => $partner,
+            ],
+            201,
+            [],
+            [ObjectNormalizer::IGNORED_ATTRIBUTES => ['partnerId', 'password']]
+        );
     }
 
     #[Route('/partners/{partner}', name: 'partners_update', methods: ['PUT'])]
@@ -60,10 +69,15 @@ class PartnerController extends AbstractController
 
         $partner = $this->partnerService->update($partner, $data);
 
-        return $this->json([
-            'message' => 'Company Updated successfuly',
-            'data' => $partner,
-        ], 201);
+        return $this->json(
+            [
+                'message' => 'Company Updated successfuly',
+                'data' => $partner,
+            ],
+            201,
+            [],
+            [ObjectNormalizer::IGNORED_ATTRIBUTES => ['partnerId', 'password']]
+        );
     }
 
     #[Route('/partners/{partner}', name: 'partners_delete', methods: ['DELETE'])]
